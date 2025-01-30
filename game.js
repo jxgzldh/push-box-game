@@ -73,6 +73,30 @@ document.addEventListener('keydown', (e) => {
     checkWin();
 });
 
+// 添加触摸滑动支持
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0) movePlayer('right');
+        else movePlayer('left');
+    } else {
+        if (deltaY > 0) movePlayer('down');
+        else movePlayer('up');
+    }
+});
+
 function checkWin() {
     let win = true;
     for(let y=0; y<map.length; y++){
