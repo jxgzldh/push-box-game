@@ -13,7 +13,6 @@ let playerPos = {x:0, y:0};
 
 function initGame() {
     map = JSON.parse(JSON.stringify(levels[currentLevel]));
-    // 找到玩家初始位置
     for(let y=0; y<map.length; y++){
         for(let x=0; x<map[y].length; x++){
             if(map[y][x] === 4){
@@ -43,23 +42,28 @@ function render() {
     }
 }
 
-document.addEventListener('keydown', (e) => {
-    const key = e.key;
-    let dx=0, dy=0;
-    if(key === 'ArrowUp') dy = -1;
-    else if(key === 'ArrowDown') dy = 1;
-    else if(key === 'ArrowLeft') dx = -1;
-    else if(key === 'ArrowRight') dx = 1;
+// 虚拟方向键控制
+document.getElementById('up').addEventListener('touchstart', () => movePlayer('up'));
+document.getElementById('left').addEventListener('touchstart', () => movePlayer('left'));
+document.getElementById('down').addEventListener('touchstart', () => movePlayer('down'));
+document.getElementById('right').addEventListener('touchstart', () => movePlayer('right'));
+
+function movePlayer(direction) {
+    let dx = 0, dy = 0;
+    if (direction === 'up') dy = -1;
+    else if (direction === 'down') dy = 1;
+    else if (direction === 'left') dx = -1;
+    else if (direction === 'right') dx = 1;
 
     const newX = playerPos.x + dx;
     const newY = playerPos.y + dy;
     
-    if(map[newY][newX] === 1) return; // 撞墙
+    if (map[newY][newX] === 1) return; // 撞墙
     
-    if(map[newY][newX] === 2) { // 推箱子
+    if (map[newY][newX] === 2) { // 推箱子
         const boxNewX = newX + dx;
         const boxNewY = newY + dy;
-        if(map[boxNewY][boxNewX] !== 0 && map[boxNewY][boxNewX] !== 3) return;
+        if (map[boxNewY][boxNewX] !== 0 && map[boxNewY][boxNewX] !== 3) return;
         map[newY][newX] = 0;
         map[boxNewY][boxNewX] = 2;
     }
@@ -71,9 +75,9 @@ document.addEventListener('keydown', (e) => {
     
     render();
     checkWin();
-});
+}
 
-// 添加触摸滑动支持
+// 滑动控制（与方向键共存）
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -88,12 +92,14 @@ document.addEventListener('touchend', (e) => {
     const deltaX = touchEndX - touchStartX;
     const deltaY = touchEndY - touchStartY;
 
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 0) movePlayer('right');
-        else movePlayer('left');
-    } else {
-        if (deltaY > 0) movePlayer('down');
-        else movePlayer('up');
+    if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) { // 滑动超过20像素才触发
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX > 0) movePlayer('right');
+            else movePlayer('left');
+        } else {
+            if (deltaY > 0) movePlayer('down');
+            else movePlayer('up');
+        }
     }
 });
 
