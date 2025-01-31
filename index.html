@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>经典推箱子</title>
+    <title>推箱子完美版</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         /* 整体样式 */
@@ -16,25 +16,16 @@
             color: white;
         }
 
-        /* 标题样式 */
-        .header {
-            margin: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            color: #f1c40f;
-            margin: 0;
-            font-size: 2.5em;
-            text-shadow: 2px 2px #34495e;
-        }
-
-        /* 游戏主界面 */
+        /* 游戏容器 */
         .game-container {
             background: #34495e;
             padding: 15px;
             border-radius: 15px;
+            margin-top: 20px;
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
         }
+
+        /* 格子基础样式 */
         .cell {
             width: 12vw;
             height: 12vw;
@@ -43,21 +34,32 @@
             display: inline-block;
             margin: 2px;
             border-radius: 4px;
-            background-size: cover;
+            position: relative;
         }
 
-        /* 元素样式 */
+        /* 地板样式 */
+        .floor {
+            background: #95a5a6;
+        }
+
+        /* 墙样式 */
         .wall {
             background: #2c3e50 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAwYkAFjBQaGhq4GFzA0NDwHxUxqhhVjCoGXwwAwQgKRRWjilHF4IsBABdaDQ0tN4WkAAAAAElFTkSuQmCC');
         }
-        .box {
-            background: #8b4513 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAPklEQVQ4jWNgGAVUAQwMjP8hAC0CpgBdHq6AgYHh////cAl0BSgK0OWJtwGmh4GB4T9UgCgF6PJk2AADcE0MKAAAS5gbmXpzuGIAAAAASUVORK5CYII=');
-        }
+
+        /* 目标点样式 */
         .target {
             background: radial-gradient(circle, #ff4444 30%, transparent 70%);
         }
+
+        /* 箱子样式 */
+        .box {
+            background: #8b4513 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAPklEQVQ4jWNgGAVUAQwMjP8hAC0CpgBdHq6AgYHh////cAl0BSgK0OWJtwGmh4GB4T9UgCgF6PJk2AADcE0MKAAAS5gbmXpzuGIAAAAASUVORK5CYII=');
+        }
+
+        /* 玩家样式 */
         .player {
-            background: #3498db url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAvklEQVRIie2UMQ6CMBRF3x8T4sKZuHMgJycHcHESN3fCxIm4uDk4OIAhRkOCoaWUllIwkf7E0PZx7+u9Fv5c1uAqOAK3ZgJwBm6S4wN4SJ4n4CF5LsBL8tyAt+T5F8gXkDdQgHwB2YNiA3kD2QZqA7UGagPVBmoDtQZqA7UGagNfG7iZc7kH4O1SdAbeLkUv4O1SdAXeLkVP4O1S9APeLkXv+4h2KRqNf9E3+QAAAABJRU5ErkJggg==');
+            background: #3498db url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAvklEQVRIie2UMQ6CMBRF3x8T4sKZuHMgJycHcHESN3fCxIm4uDk4OIAhRkOCoaWUllIwkf7E0PZx7+u9Fv5c1uAqOAK3ZgJwBm6S4wN4SJ4n4CF5LoCX5LkAPpLnXyBfQN5AAfIFZA+KDWQbyDaQbSDbQLaBbAPZBrINZBvINpBt4GuDm0uXewDeLkVn4O1SdAbeLkVn4O1SdAbeLkVn4O1S9APeLkXv+4h2KRqNf9E3+QAAAABJRU5ErkJggg==');
         }
 
         /* 控制按钮 */
@@ -72,6 +74,7 @@
                 ". down .";
             gap: 10px;
         }
+
         .arrow {
             width: 15vw;
             height: 15vw;
@@ -87,16 +90,14 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             transition: transform 0.1s;
         }
+
         .arrow:active {
             transform: scale(0.9);
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>经典推箱子</h1>
-        <p>当前关卡：<span id="currentLevel">1</span></p>
-    </div>
+    <h1>推箱子</h1>
     <div class="game-container">
         <div id="game"></div>
     </div>
