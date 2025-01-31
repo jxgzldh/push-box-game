@@ -1,0 +1,141 @@
+/* 重置默认样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  touch-action: none; /* 禁止页面滚动 */
+}
+
+/* 整体布局 */
+body {
+  background: #2c3e50;
+  font-family: '幼圆', cursive;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* 标题样式 */
+.header {
+  text-align: center;
+  padding: 20px;
+  background: #34495e;
+  width: 100%;
+}
+.header h1 {
+  color: #f1c40f;
+  font-size: 2em;
+  text-shadow: 2px 2px #2c3e50;
+}
+
+/* 游戏容器 */
+.game-container {
+  background: #34495e;
+  padding: 15px;
+  border-radius: 15px;
+  margin: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+/* 网格单元格 */
+.cell {
+  width: 12vw;
+  height: 12vw;
+  max-width: 50px;
+  max-height: 50px;
+  display: inline-block;
+  margin: 2px;
+  border-radius: 4px;
+  position: relative;
+}
+
+/* 元素样式 */
+.floor { background: #7f8c8d; }
+.wall { background: #2c3e50 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAwYkAFjBQaGhq4GFzA0NDwHxUxqhhVjCoGXwwAwQgKRRWjilHF4IsBABdaDQ0tN4WkAAAAAElFTkSuQmCC'); }
+.box { background: #e67e22 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXklEQVQ4T2NkYGAwZICC//8ZGBgYfjIwMPxHlcCUYFTAyMDAwMjIyPCTkZGRgY2NjYFgAPLAD0QNWB6A6QHxQHIgHk0C7gFkBUgKYB5AVwDzALIHYIqRPYDiARQPAAAvWg0N4kYwHgAAAABJRU5ErkJggg=='); }
+.target { background: radial-gradient(circle, #e74c3c 30%, transparent 70%); }
+.player { background: #3498db url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAvklEQVRIie2UMQ6CMBRF3x8T4sKZuHMgJycHcHESN3fCxIm4uDk4OIAhRkOCoaWUllIwkf7E0PZx7+u9Fv5c1uAqOAK3ZgJwBm6S4wN4SJ4n4CF5LoCX5LkAPpLnXyBfQN5AAfIFZA+KDWQbyDaQbSDbQLaBbAPZBrINZBvINpBt4GuDm0uXewDeLkVn4O1SdAbeLkVn4O1SdAbeLkVn4O1S9APeLkXv+4h2KRqNf9E3+QAAAABJRU5ErkJggg=='); }
+
+/* 控制按钮 */
+.controls {
+  position: fixed;
+  bottom: 30px;
+  right: 20px;
+  display: grid;
+  grid-template-areas: 
+    ". up ."
+    "left . right"
+    ". down .";
+  gap: 10px;
+}
+
+.arrow {
+  width: 15vw;
+  height: 15vw;
+  max-width: 60px;
+  max-height: 60px;
+  background: #27ae60;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  transition: all 0.1s;
+}
+
+.arrow:active {
+  transform: scale(0.9);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* 功能按钮 */
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin: 10px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  background: #3498db;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(52,152,219,0.4);
+}
+
+/* 关卡选择 */
+.level-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 20px;
+}
+
+.level-btn {
+  padding: 15px;
+  background: #2ecc71;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.level-btn.completed {
+  background: #f1c40f;
+}
+
+.level-btn:hover {
+  transform: scale(1.05);
+}
