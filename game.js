@@ -155,13 +155,17 @@ function updateLevelSelector() {
 }
 
 // ============== 事件监听 ==============
-// 方向键控制
-document.getElementById('up').addEventListener('touchstart', () => movePlayer(0, -1));
-document.getElementById('down').addEventListener('touchstart', () => movePlayer(0, 1));
-document.getElementById('left').addEventListener('touchstart', () => movePlayer(-1, 0));
-document.getElementById('right').addEventListener('touchstart', () => movePlayer(1, 0));
+// 键盘控制（电脑端）
+document.addEventListener('keydown', e => {
+  switch(e.key) {
+    case 'ArrowUp': movePlayer(0, -1); break;
+    case 'ArrowDown': movePlayer(0, 1); break;
+    case 'ArrowLeft': movePlayer(-1, 0); break;
+    case 'ArrowRight': movePlayer(1, 0); break;
+  }
+});
 
-// 滑动控制
+// 滑动控制（手机端）
 let touchStart = {x:0, y:0};
 document.addEventListener('touchstart', e => {
   e.preventDefault();
