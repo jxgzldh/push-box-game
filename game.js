@@ -1,178 +1,126 @@
-// ================ 游戏数据 ================
-// 关卡地图数据（0:空地, 1:墙, 2:箱子, 3:目标点, 4:玩家）
+// ================= 游戏配置 =================
 const levels = [
-    // 第1关（新手关）
     [
         [1,1,1,1,1],
-        [1,4,0,0,1],  // 4代表玩家初始位置
-        [1,0,2,3,1],  // 2是箱子，3是目标点
+        [1,4,0,3,1],
+        [1,0,2,0,1],
         [1,1,1,1,1]
     ],
-    // 第2关（中等难度）
     [
         [1,1,1,1,1,1],
-        [1,0,0,0,0,1],
-        [1,0,2,2,4,1], // 两个箱子
-        [1,0,3,3,0,1], // 两个目标点
+        [1,3,0,0,3,1],
+        [1,0,2,2,4,1],
         [1,1,1,1,1,1]
-    ],
-    // 第3关（挑战关）
-    [
-        [1,1,1,1,1,1,1],
-        [1,0,0,1,0,0,1],
-        [1,0,2,3,2,0,1], // 两个箱子
-        [1,0,3,2,3,0,1], // 三个目标点
-        [1,4,0,1,0,0,1],
-        [1,1,1,1,1,1,1]
     ]
 ];
 
-// ================ 游戏变量 ================
-let currentLevel = 0; // 当前关卡
-let map = [];         // 当前地图数据
-let playerPos = { x: 0, y: 0 }; // 玩家位置
+// ================= 游戏逻辑 =================
+let currentLevel = 0;
+let map = [];
+let playerPos = {x:0, y:0};
 
-// ================ 初始化游戏 ================
 function initGame() {
-    // 1. 复制当前关卡地图
-    map = JSON.parse(JSON.stringify(levels[currentLevel]));
+    // 更新关卡显示
+    document.getElementById('currentLevel').textContent = currentLevel + 1;
     
-    // 2. 查找玩家初始位置
-    for (let y = 0; y < map.length; y++) {
-        for (let x = 0; x < map[y].length; x++) {
-            if (map[y][x] === 4) {
-                playerPos = { x, y };
-            }
+    // 初始化地图
+    map = JSON.parse(JSON.stringify(levels[currentLevel]));
+    for(let y=0; y<map.length; y++){
+        for(let x=0; x<map[y].length; x++){
+            if(map[y][x] === 4) playerPos = {x, y};
         }
     }
-    
-    // 3. 渲染地图
     render();
 }
 
-// ================ 渲染地图 ================
 function render() {
     const gameDiv = document.getElementById('game');
-    gameDiv.innerHTML = ''; // 清空旧内容
-    
-    // 逐行逐列生成地图
-    for (let y = 0; y < map.length; y++) {
-        const row = document.createElement('div'); // 创建行
-        for (let x = 0; x < map[y].length; x++) {
-            const cell = document.createElement('div'); // 创建格子
-            cell.className = 'cell'; // 基础样式
-            
-            // 根据数字添加不同样式
-            switch (map[y][x]) {
-                case 1: cell.classList.add('wall'); break;   // 墙
-                case 2: cell.classList.add('box'); break;    // 箱子
-                case 3: cell.classList.add('target'); break; // 目标点
-                case 4: cell.classList.add('player'); break; // 玩家
-            }
-            
-            row.appendChild(cell); // 将格子添加到行
-        }
-        gameDiv.appendChild(row); // 将行添加到游戏区域
-    }
+    gameDiv.innerHTML = '';
+    map.forEach(row => {
+        const rowDiv = document.createElement('div');
+        row.forEach(cell => {
+            const cellDiv = document.createElement('div');
+            cellDiv.className = 'cell';
+            if(cell === 1) cellDiv.classList.add('wall');
+            else if(cell === 2) cellDiv.classList.add('box');
+            else if(cell === 3) cellDiv.classList.add('target');
+            else if(cell === 4) cellDiv.classList.add('player');
+            rowDiv.appendChild(cellDiv);
+        });
+        gameDiv.appendChild(rowDiv);
+    });
 }
 
-// ================ 玩家移动逻辑 ================
 function movePlayer(direction) {
-    // 计算移动方向
-    let dx = 0, dy = 0;
-    switch (direction) {
-        case 'up': dy = -1; break;    // 向上
-        case 'down': dy = 1; break;   // 向下
-        case 'left': dx = -1; break;  // 向左
-        case 'right': dx = 1; break;  // 向右
+    let dx=0, dy=0;
+    switch(direction) {
+        case 'up': dy = -1; break;
+        case 'down': dy = 1; break;
+        case 'left': dx = -1; break;
+        case 'right': dx = 1; break;
     }
-    
-    // 计算新位置
+
     const newX = playerPos.x + dx;
     const newY = playerPos.y + dy;
     
-    // 如果新位置是墙，不能移动
-    if (map[newY][newX] === 1) return;
+    // 边界检查
+    if(newY < 0 || newY >= map.length || newX < 0 || newX >= map[0].length) return;
     
-    // 如果新位置是箱子
-    if (map[newY][newX] === 2) {
-        // 计算箱子新位置
-        const boxNewX = newX + dx;
-        const boxNewY = newY + dy;
-        
-        // 如果箱子前面是墙或其他箱子，不能推动
-        if (map[boxNewY][boxNewX] === 1 || map[boxNewY][boxNewX] === 2) return;
-        
-        // 移动箱子
-        map[newY][newX] = 0;        // 原箱子位置清空
-        map[boxNewY][boxNewX] = 2;  // 新位置放置箱子
+    // 碰撞检测
+    const targetCell = map[newY][newX];
+    if(targetCell === 1) return; // 撞墙
+    
+    if(targetCell === 2) { // 推箱子
+        const boxX = newX + dx;
+        const boxY = newY + dy;
+        if(boxY < 0 || boxY >= map.length || boxX < 0 || boxX >= map[0].length) return;
+        if(map[boxY][boxX] !== 0 && map[boxY][boxX] !== 3) return;
+        map[newY][newX] = 0;
+        map[boxY][boxX] = 2;
     }
-    
+
     // 移动玩家
-    map[playerPos.y][playerPos.x] = 0; // 原玩家位置清空
-    playerPos.x = newX;                // 更新玩家坐标
+    map[playerPos.y][playerPos.x] = 0;
+    playerPos.x = newX;
     playerPos.y = newY;
-    map[newY][newX] = 4;               // 新位置放置玩家
+    map[newY][newX] = 4;
     
-    render();       // 重新渲染地图
-    checkWin();     // 检查是否胜利
+    render();
+    if(checkWin()) {
+        if(currentLevel < levels.length-1) {
+            setTimeout(() => {
+                currentLevel++;
+                initGame();
+            }, 1000);
+        } else {
+            alert('恭喜完成所有关卡！');
+        }
+    }
 }
 
-// ================ 胜利检测 ================
 function checkWin() {
-    let allCorrect = true;
-    
-    // 遍历所有格子，检查目标点是否都有箱子
-    for (let y = 0; y < map.length; y++) {
-        for (let x = 0; x < map[y].length; x++) {
-            if (map[y][x] === 3) {     // 如果是目标点
-                if (map[y][x] !== 2) { // 且没有箱子
-                    allCorrect = false;
+    for(let y=0; y<map.length; y++){
+        for(let x=0; x<map[y].length; x++){
+            if(map[y][x] === 3) {
+                let hasBox = false;
+                for(let y2=0; y2<map.length; y2++){
+                    for(let x2=0; x2<map[y2].length; x2++){
+                        if(y2 === y && x2 === x && map[y2][x2] === 2) hasBox = true;
+                    }
                 }
+                if(!hasBox) return false;
             }
         }
     }
-    
-    if (allCorrect) {
-        if (currentLevel < levels.length - 1) {
-            // 进入下一关
-            currentLevel++;
-            alert('太棒了！进入第' + (currentLevel + 1) + '关！');
-            initGame();
-        } else {
-            alert('恭喜你，通关所有关卡！🎉');
-        }
-    }
+    return true;
 }
 
-// ================ 关卡选择功能 ================
-function createLevelButtons() {
-    const buttonsDiv = document.getElementById('levelButtons');
-    
-    // 为每个关卡创建按钮
-    for (let i = 0; i < levels.length; i++) {
-        const button = document.createElement('button');
-        button.className = 'level-btn';
-        button.textContent = '第' + (i + 1) + '关';
-        
-        // 点击按钮切换关卡
-        button.onclick = () => {
-            currentLevel = i;
-            initGame();
-        };
-        
-        buttonsDiv.appendChild(button); // 添加按钮
-    }
-}
-
-// ================ 手机触摸控制 ================
-// 虚拟方向键控制
+// ================= 事件绑定 =================
 document.getElementById('up').addEventListener('touchstart', () => movePlayer('up'));
 document.getElementById('left').addEventListener('touchstart', () => movePlayer('left'));
 document.getElementById('down').addEventListener('touchstart', () => movePlayer('down'));
 document.getElementById('right').addEventListener('touchstart', () => movePlayer('right'));
 
-// 滑动控制（与按钮共存）
 let touchStartX = 0, touchStartY = 0;
 document.addEventListener('touchstart', (e) => {
     touchStartX = e.touches[0].clientX;
@@ -182,7 +130,7 @@ document.addEventListener('touchend', (e) => {
     const deltaX = e.changedTouches[0].clientX - touchStartX;
     const deltaY = e.changedTouches[0].clientY - touchStartY;
     
-    if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) { // 滑动超过20像素才响应
+    if (Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30) {
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
             deltaX > 0 ? movePlayer('right') : movePlayer('left');
         } else {
@@ -191,6 +139,5 @@ document.addEventListener('touchend', (e) => {
     }
 });
 
-// ================ 启动游戏 ================
-createLevelButtons(); // 生成关卡按钮
-initGame();           // 初始化第一关
+// 启动游戏
+initGame();
