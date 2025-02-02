@@ -1,32 +1,35 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html>
 <head>
-  <title>经典推箱子</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+    <title>经典推箱子-完美版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="header">
-    <h1>经典推箱子</h1>
-    <div class="toolbar">
-      <button class="btn" id="restartBtn">重新开始</button>
-      <button class="btn" id="selectLevelBtn">选择关卡</button>
+    <div class="game-frame">
+        <div class="header">
+            <h1>推箱子 <span id="levelNum">1</span></h1>
+            <div class="controls">
+                <button class="btn" onclick="restart()">🔄重玩</button>
+                <button class="btn" onclick="showLevels()">📚关卡</button>
+            </div>
+        </div>
+        
+        <div class="game-board" id="board"></div>
+        
+        <div class="level-modal" id="levelModal">
+            <div class="modal-content">
+                <h2>选择关卡</h2>
+                <div class="level-grid" id="levelGrid"></div>
+                <button class="btn" onclick="hideLevels()">关闭</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="game-container">
-    <div id="game"></div>
-  </div>
+    <audio id="moveSound" src="https://cdn.pixabay.com/download/audio/2021/10/11/audio_3f2b4e2c5c.mp3"></audio>
+    <audio id="winSound" src="https://cdn.pixabay.com/download/audio/2021/10/11/audio_5c7d0e8d5c.mp3"></audio>
 
-  <!-- 关卡选择弹窗 -->
-  <div id="levelModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <h2>选择关卡</h2>
-      <div class="level-selector" id="levelSelector"></div>
-      <button class="btn" onclick="document.getElementById('levelModal').style.display='none'">关闭</button>
-    </div>
-  </div>
-
-  <script src="game.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
