@@ -1,197 +1,201 @@
-// ============== 游戏配置 ==============
+// game.js
 const levels = [
-  { // 第1关
-    map: [
-      [1,1,1,1,1],
-      [1,0,0,0,1],
-      [1,4,2,3,1],
-      [1,1,1,1,1]
-    ],
-    targets: [{x:3,y:2}]
-  },
-  { // 第2关
-    map: [
-      [1,1,1,1,1,1],
-      [1,3,0,0,3,1],
-      [1,0,2,2,0,1],
-      [1,0,4,0,0,1],
-      [1,1,1,1,1,1]
-    ],
-    targets: [{x:1,y:1}, {x:4,y:1}]
-  },
-  { // 第3关
-    map: [
-      [1,1,1,1,1,1,1],
-      [1,0,1,0,1,0,1],
-      [1,0,2,3,2,0,1],
-      [1,0,3,2,3,0,1],
-      [1,0,4,0,0,0,1],
-      [1,1,1,1,1,1,1]
-    ],
-    targets: [{x:3,y:2}, {x:4,y:3}, {x:3,y:3}]
-  }
+    { // 第1关
+        map: [
+            [1,1,1,1,1],
+            [1,0,4,0,1],
+            [1,0,2,3,1],
+            [1,1,1,1,1]
+        ],
+        targets: [{x:3,y:2}]
+    },
+    { // 第2关（完美测试版）
+        map: [
+            [1,1,1,1,1,1],
+            [1,3,0,0,3,1],
+            [1,0,2,0,2,1],
+            [1,0,4,0,0,1],
+            [1,1,1,1,1,1]
+        ],
+        targets: [{x:1,y:1}, {x:4,y:1}]
+    }
 ];
 
-// ============== 游戏状态 ==============
 let currentLevel = 0;
-let map = [];
-let playerPos = {x:0, y:0};
-let targets = [];
-let completedLevels = new Set();
+let gameMap = [];
+let player = {x: 0, y: 0};
 
-// ============== 核心函数 ==============
 function initGame() {
-  const level = levels[currentLevel];
-  map = JSON.parse(JSON.stringify(level.map));
-  targets = level.targets;
-  
-  // 查找玩家位置
-  for(let y=0; y<map.length; y++){
-    for(let x=0; x<map[y].length; x++){
-      if(map[y][x] === 4) {
-        playerPos = {x, y};
-        map[y][x] = 0; // 清除玩家标记
-      }
-    }
-  }
-  
-  render();
-  updateLevelSelector();
+    const level = levels[currentLevel];
+    gameMap = JSON.parse(JSON.stringify(level.map));
+    
+    // 初始化玩家位置
+    level.map.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            if(cell === 4) {
+                player.x = x;
+                player.y = y;
+                gameMap[y][x] = 0; // 清除初始位置标记
+            }
+        });
+    });
+    
+    render();
 }
 
 function render() {
-  const gameDiv = document.getElementById('game');
-  gameDiv.innerHTML = '';
-  
-  map.forEach((row, y) => {
-    const rowDiv = document.createElement('div');
-    row.forEach((cell, x) => {
-      const cellDiv = document.createElement('div');
-      cellDiv.className = 'cell floor';
-      
-      if(cell === 1) cellDiv.classList.add('wall');
-      if(isTarget(x, y)) cellDiv.classList.add('target');
-      if(cell === 2) cellDiv.classList.add('box');
-      if(x === playerPos.x && y === playerPos.y) cellDiv.classList.add('player');
-      
-      rowDiv.appendChild(cellDiv);
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+    document.getElementById('levelNum').textContent = currentLevel + 1;
+
+    gameMap.forEach((row, y) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row';
+        
+        row.forEach((cell, x) => {
+            const cellDiv = document.createElement('div');
+            cellDiv.className = 'cell';
+            
+            // 墙壁
+            if(cell === 1) cellDiv.classList.add('wall');
+            
+            // 箱子
+            if(cell === 2) {
+                cellDiv.classList.add('box');
+                if(isOnTarget(x, y)) cellDiv.classList.add('on-target');
+            }
+            
+            // 目标点
+            if(levels[currentLevel].targets.some(t => t.x === x && t.y === y)) {
+                cellDiv.classList.add('target');
+            }
+            
+            // 玩家
+            if(x === player.x && y === player.y) {
+                cellDiv.classList.add('player');
+            }
+            
+            rowDiv.appendChild(cellDiv);
+        });
+        board.appendChild(rowDiv);
     });
-    gameDiv.appendChild(rowDiv);
-  });
 }
 
-// ============== 移动逻辑 ==============
-function movePlayer(dx, dy) {
-  const newX = playerPos.x + dx;
-  const newY = playerPos.y + dy;
-  
-  // 边界检查
-  if(newY < 0 || newY >= map.length || newX < 0 || newX >= map[0].length) return;
-  
-  // 撞墙检测
-  if(map[newY][newX] === 1) return;
-  
-  // 推箱子逻辑
-  if(map[newY][newX] === 2) {
-    const boxX = newX + dx;
-    const boxY = newY + dy;
+function move(dx, dy) {
+    const newX = player.x + dx;
+    const newY = player.y + dy;
     
-    if(
-      boxY < 0 || boxY >= map.length ||
-      boxX < 0 || boxX >= map[0].length ||
-      map[boxY][boxX] !== 0
-    ) return;
+    // 边界检查
+    if(newY < 0 || newY >= gameMap.length) return;
+    if(newX < 0 || newX >= gameMap[0].length) return;
     
-    map[newY][newX] = 0;
-    map[boxY][boxX] = 2;
-  }
-  
-  // 更新玩家位置
-  playerPos.x = newX;
-  playerPos.y = newY;
-  
-  render();
-  checkWin();
+    const targetCell = gameMap[newY][newX];
+    
+    // 撞墙检测
+    if(targetCell === 1) return;
+    
+    // 推箱子逻辑
+    if(targetCell === 2) {
+        const boxX = newX + dx;
+        const boxY = newY + dy;
+        
+        // 箱子边界检测
+        if(boxY < 0 || boxY >= gameMap.length) return;
+        if(boxX < 0 || boxX >= gameMap[0].length) return;
+        if(gameMap[boxY][boxX] !== 0) return;
+        
+        // 移动箱子
+        gameMap[newY][newX] = 0;
+        gameMap[boxY][boxX] = 2;
+        playSound('move');
+    }
+    
+    // 移动玩家
+    player.x = newX;
+    player.y = newY;
+    
+    render();
+    checkWin();
 }
 
-// ============== 胜利检测 ==============
+function isOnTarget(x, y) {
+    return levels[currentLevel].targets.some(t => t.x === x && t.y === y);
+}
+
 function checkWin() {
-  const win = targets.every(t => map[t.y][t.x] === 2);
-  if(win) {
-    completedLevels.add(currentLevel);
-    setTimeout(() => {
-      if(currentLevel < levels.length-1) {
-        currentLevel++;
-        alert(`🎉 通关成功！进入第 ${currentLevel+1} 关`);
-        initGame();
-      } else {
-        alert('🏆 恭喜你成为推箱子大师！');
-      }
-    }, 300);
-  }
-  return win;
+    const win = levels[currentLevel].targets.every(t => gameMap[t.y][t.x] === 2);
+    if(win) {
+        playSound('win');
+        setTimeout(() => {
+            if(currentLevel < levels.length-1) {
+                currentLevel++;
+                initGame();
+            } else {
+                alert('🎉 恭喜通关！');
+            }
+        }, 500);
+    }
 }
 
-// ============== 辅助函数 ==============
-function isTarget(x, y) {
-  return targets.some(t => t.x === x && t.y === y);
+function playSound(type) {
+    const audio = document.getElementById(type + 'Sound');
+    audio.currentTime = 0;
+    audio.play().catch(() => {}); // 处理自动播放限制
 }
 
-function updateLevelSelector() {
-  const container = document.getElementById('levelSelector');
-  container.innerHTML = '';
-  
-  levels.forEach((_, index) => {
-    const btn = document.createElement('button');
-    btn.className = `level-btn ${completedLevels.has(index) ? 'completed' : ''}`;
-    btn.textContent = `第 ${index+1} 关`;
-    btn.onclick = () => {
-      currentLevel = index;
-      document.getElementById('levelModal').style.display = 'none';
-      initGame();
-    };
-    container.appendChild(btn);
-  });
+// 游戏控制
+function restart() { initGame(); }
+
+function showLevels() {
+    const grid = document.getElementById('levelGrid');
+    grid.innerHTML = levels.map((_,i) => `
+        <button class="btn" onclick="currentLevel=${i};hideLevels();initGame()">
+            ${i+1}${i <= currentLevel ? '🔓' : '🔒'}
+        </button>
+    `).join('');
+    document.getElementById('levelModal').style.display = 'flex';
 }
 
-// ============== 事件监听 ==============
-// 键盘控制（电脑端）
+function hideLevels() { 
+    document.getElementById('levelModal').style.display = 'none';
+}
+
+// 事件监听
 document.addEventListener('keydown', e => {
-  switch(e.key) {
-    case 'ArrowUp': movePlayer(0, -1); break;
-    case 'ArrowDown': movePlayer(0, 1); break;
-    case 'ArrowLeft': movePlayer(-1, 0); break;
-    case 'ArrowRight': movePlayer(1, 0); break;
-  }
+    if(e.key.startsWith('Arrow')) {
+        const dir = {
+            ArrowUp: [0, -1],
+            ArrowDown: [0, 1],
+            ArrowLeft: [-1, 0],
+            ArrowRight: [1, 0]
+        }[e.key];
+        move(...dir);
+    }
 });
 
-// 滑动控制（手机端）
 let touchStart = {x:0, y:0};
 document.addEventListener('touchstart', e => {
-  e.preventDefault();
-  touchStart.x = e.touches[0].clientX;
-  touchStart.y = e.touches[0].clientY;
+    touchStart.x = e.touches[0].clientX;
+    touchStart.y = e.touches[0].clientY;
 });
 
 document.addEventListener('touchend', e => {
-  e.preventDefault();
-  const deltaX = e.changedTouches[0].clientX - touchStart.x;
-  const deltaY = e.changedTouches[0].clientY - touchStart.y;
-  
-  if(Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30) {
-    if(Math.abs(deltaX) > Math.abs(deltaY)) {
-      deltaX > 0 ? movePlayer(1, 0) : movePlayer(-1, 0);
-    } else {
-      deltaY > 0 ? movePlayer(0, 1) : movePlayer(0, -1);
+    const deltaX = e.changedTouches[0].clientX - touchStart.x;
+    const deltaY = e.changedTouches[0].clientY - touchStart.y;
+    
+    if(Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30) {
+        const dir = Math.abs(deltaX) > Math.abs(deltaY) 
+            ? [deltaX > 0 ? 1 : -1, 0]
+            : [0, deltaY > 0 ? 1 : -1];
+        move(...dir);
     }
-  }
 });
 
-// 功能按钮
-document.getElementById('restartBtn').onclick = initGame;
-document.getElementById('selectLevelBtn').onclick = () => {
-  document.getElementById('levelModal').style.display = 'block';
-};
-
-// ============== 启动游戏 ==============
+// 初始化游戏
 initGame();
+
+// 处理音频自动播放限制
+document.body.addEventListener('click', () => {
+    document.getElementById('moveSound').play().catch(() => {});
+    document.body.removeEventListener('click', this);
+});
