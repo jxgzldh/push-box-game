@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>经典推箱子-最终修复版</title>
+    <title>经典推箱子-完美修复版</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-frame">
+        <!-- 头部控制栏 -->
         <div class="header">
             <h1>推箱子 <span id="levelNum">1</span></h1>
             <div class="controls">
-                <button class="btn" onclick="restart()">🔄重玩</button>
-                <button class="btn" onclick="showLevels()">📚关卡</button>
+                <button class="btn" onclick="restart()">🔄 重玩</button>
+                <button class="btn" onclick="showLevels()">📚 关卡</button>
             </div>
         </div>
         
+        <!-- 游戏棋盘 -->
         <div class="game-board" id="board"></div>
         
+        <!-- 关卡选择弹窗 -->
         <div class="level-modal" id="levelModal">
             <div class="modal-content">
                 <h2>选择关卡</h2>
@@ -26,7 +29,7 @@
         </div>
     </div>
 
-    <!-- 内置Base64音效 -->
+    <!-- 音效系统 -->
     <audio id="moveSound">
         <source src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQMBAQAAAA==" type="audio/wav">
     </audio>
